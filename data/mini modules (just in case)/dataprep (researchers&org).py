@@ -12,8 +12,9 @@ def get_okved2(data):
         name.append(tmp[1].lstrip())
     return name, okved2
 
+year = 2018
 
-data = pd.read_excel('2018.xlsx')
+data = pd.read_excel(''+str(year)+'.xlsx')
 
 data = data.drop(data.index[0:3])
 data = data.iloc[:-2]   # удаление последних двух строк
@@ -32,8 +33,8 @@ data = data.replace(to_replace=x, value=np.NAN)
 cols = ['sector', 'okved2', 'org', 'researchersavg']
 data = data[cols]
 
-data['year'] = 2018
+data['year'] = year
 
-data.to_csv('2018.csv', index=False)
+data.to_csv(''+str(year)+'.csv', index=False)
 
 print('done')
