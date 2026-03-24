@@ -37,6 +37,7 @@ cols = ['sector', 'okved2', 'year', 'RDcosts_s']
 final = pd.DataFrame(final, columns=cols)
 
 final = final.replace(to_replace='...', value=np.NAN)
+final = final.replace(to_replace='…1)', value=np.NAN)
 final = final.replace(to_replace='-', value=np.NAN)
 
 final['RDcosts_s'] = final['RDcosts_s'].astype(float)
