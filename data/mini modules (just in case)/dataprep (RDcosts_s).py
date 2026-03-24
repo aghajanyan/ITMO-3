@@ -22,12 +22,14 @@ data = pd.read_excel(''+str(year)+'.xlsx', sheet_name=None)
 tmp = []
 final = []
 for a in data.keys():
-    tmp.append(getsector(data[a].columns[0]))
-    tmp.append(a)
-    tmp.append(year)
-    tmp.append(data[a].iloc[4, 2])
-    final.append(tmp)
-    tmp = []
+    if a != 'ОКВЭД':
+        #tmp.append(getsector(data[a].columns[0]))
+        tmp.append(getsector(a, data['ОКВЭД']))
+        tmp.append(a)
+        tmp.append(year)
+        tmp.append(data[a].iloc[4, 1])
+        final.append(tmp)
+        tmp = []
 
 final = np.array(final)
 
