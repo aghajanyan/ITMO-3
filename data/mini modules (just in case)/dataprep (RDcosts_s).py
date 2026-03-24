@@ -7,15 +7,21 @@ def getsector(rawname):
     rawname = rawname[1].split(' ', 1)
     return rawname[1]
 
+def getsector(okved2, data):
+    sector = ''
+    for i in range(len(data)):
+        if str(data.iloc[i, 1]).replace(' ', '') == okved2:
+            sector = data.iloc[i, 0]
+            break
+    return sector
+    
 
 year = 2024
 data = pd.read_excel(''+str(year)+'.xlsx', sheet_name=None)
 
-sheets = data.keys()
-
 tmp = []
 final = []
-for a in sheets:
+for a in data.keys():
     tmp.append(getsector(data[a].columns[0]))
     tmp.append(a)
     tmp.append(year)
