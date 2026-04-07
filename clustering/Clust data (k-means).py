@@ -17,6 +17,34 @@ def getmedian(data2):
     plt.ylabel('ВДС')
     plt.show()
 
+# сохранить данные по всем кластерам в эксель файле в исходных значениях
+def saveallclusters(clusts):
+    norm = pd.read_csv("../datasets/fornorm VDS_s.csv")
+
+    writer = pd.ExcelWriter("Clusters VDS_s.xlsx")
+    for k in range(len(clusts)):
+        for col in norm:
+            clusts[k][col] = clusts[k][col] * norm.iloc[0][col]
+
+        clusts[k] = clusts[k].sort_values(by=['oktmo', 'year'])
+        clusts[k].to_excel(writer, sheet_name="Cluster " + str(k) + "", index=False)
+
+    writer.close()
+
+# сохранить данные по всем кластерам в эксель файле в исходных значениях
+def saveallclustersinonesheet(data):
+    norm = pd.read_csv("../datasets/fornorm VDS_s.csv")
+
+    writer = pd.ExcelWriter("Clusters VDS_s.xlsx")
+    for col in norm:
+        data[col] = data[col] * norm.iloc[0][col]
+
+    data = data.drop(columns=['x', 'y'])
+    data = data.sort_values(by=['okved2', 'year'])
+    data = data.sort_values(by=['clust'])
+    data.to_excel(writer, index=False)
+
+    writer.close()
 
 k = 4  # кол-во кластеров
 
@@ -45,8 +73,13 @@ clusts = []
 for i in range(k):
     clusts.append(data[data['clust'] == i])
 
-getmedian(data)
+# вывод графика с медианными значениями
+#getmedian(data)
 
+# сохраниить данных в эксель
+saveallclustersinonesheet(data)
+
+# визуализация кластеризации
 for i in range(k):
     plt.scatter(clusts[i]['x'], clusts[i]['y'], label="Cluster " + str(i) + "")
 
