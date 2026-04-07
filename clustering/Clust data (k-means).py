@@ -74,7 +74,7 @@ for i in range(k):
     clusts.append(data[data['clust'] == i])
 
 # вывод графика с медианными значениями
-#getmedian(data)
+getmedian(data)
 
 # сохраниить данных в эксель
 saveallclustersinonesheet(data)
