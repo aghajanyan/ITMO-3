@@ -3,6 +3,8 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import pandas as pd
+from sympy import false
+
 
 # нормализация знечений признаков от 0 до 1 (с сохранением файла с нормализаторами (макс.))
 def normbymax(trainset):
@@ -75,6 +77,6 @@ features = ['sector', 'okved2', 'year', 'VDS_s', 'ITcosts_s', 'skvozcosts_s', 't
             'RDcosts_s', 'RDsalary_s']
 
 rawdata = pd.DataFrame(rawdata, columns=features)
-rawdata.to_csv('VDS_s.csv')
+rawdata.to_csv('VDS_s.csv', index=False)
 
 print('done')

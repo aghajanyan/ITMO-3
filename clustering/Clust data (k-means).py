@@ -8,7 +8,17 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import seaborn as sns
 
-k = 3  # кол-во кластеров
+# медианное значение ВДС в кластере
+def getmedian(data2):
+    sns.boxplot(x='clust', y='VDS_s', data=data2, palette='viridis')
+
+    plt.title("Медианное значение валовой добавленной стоимости в кластере")
+    plt.xlabel('Cluster')
+    plt.ylabel('ВДС')
+    plt.show()
+
+
+k = 4  # кол-во кластеров
 
 data = pd.read_csv('../datasets/VDS_s.csv')
 data = data.sample(frac=1)  # перетасовка
@@ -35,8 +45,7 @@ clusts = []
 for i in range(k):
     clusts.append(data[data['clust'] == i])
 
-x = [1, 2, 3, 1, 2, 3]
-y = [2, 3, 2, -2, -3, -2]
+getmedian(data)
 
 for i in range(k):
     plt.scatter(clusts[i]['x'], clusts[i]['y'], label="Cluster " + str(i) + "")
