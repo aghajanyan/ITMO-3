@@ -17,8 +17,29 @@ def getmedian(data2):
     plt.ylabel('ВДС')
     plt.show()
 
+# сохранить медианные значения каждого кластера для последующего анализа
+def saveallmedians(clusts):
+    norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
+
+    final = []
+    tmp = []
+    for k in range(len(clusts)):
+        tmp.append(k)
+        for col in norm:
+            tmp.append(clusts[k][col].median() * norm.iloc[0][col])
+
+        final.append(tmp)
+        tmp = []
+
+    final = np.array(final)
+    features = list(norm.columns)
+    features.insert(0, 'clust')
+    final = pd.DataFrame(final, columns=features)
+    final.to_excel("median of "+str(len(clusts))+" clusters (factoriescap_s (costs) 0).xlsx", index=False)
+
+
 # сохранить данные по всем кластерам в эксель файле в исходных значениях
-def saveallclusters(clusts):
+def saveallclustersinseparatesheet(clusts):
     norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
 
     writer = pd.ExcelWriter("Clusters factoriescap_s (costs) 0.xlsx")
@@ -26,7 +47,7 @@ def saveallclusters(clusts):
         for col in norm:
             clusts[k][col] = clusts[k][col] * norm.iloc[0][col]
 
-        clusts[k] = clusts[k].sort_values(by=['oktmo', 'year'])
+        clusts[k] = clusts[k].sort_values(by=['okved2', 'year'])
         clusts[k].to_excel(writer, sheet_name="Cluster " + str(k) + "", index=False)
 
     writer.close()
@@ -76,8 +97,11 @@ for i in range(k):
 # вывод графика с медианными значениями
 getmedian(data)
 
-# сохраниить данных в эксель
-saveallclustersinonesheet(data)
+# сохранить медианы кластеров в эксель
+saveallmedians(clusts)
+
+# сохраниить полные данные кластеров в эксель
+#saveallclustersinonesheet(data)
 
 # визуализация кластеризации
 for i in range(k):
