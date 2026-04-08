@@ -1,1 +1,1 @@
-factoriescap_s (costs) 0.csv - датасет основанный на factoriescap_s, включающий следующие индикаторы: 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s' (231 пример, мёрдж через 'sector')
+factoriescap_s (costs) 0.csv - датасет основанный на factoriescap_s, включающий следующие индикаторы: 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s' (231 пример, мёрдж через 'sector'/'year')
