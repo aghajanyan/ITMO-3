@@ -8,20 +8,20 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import seaborn as sns
 
-# медианное значение ВДС в кластере
+# медианное значение ключевого параметра в кластере
 def getmedian(data2):
-    sns.boxplot(x='clust', y='VDS_s', data=data2, palette='viridis')
+    sns.boxplot(x='clust', y='factoriescap_s', data=data2, palette='viridis')
 
-    plt.title("Медианное значение валовой добавленной стоимости в кластере")
+    plt.title("Медианное значение объема собственного производства в кластере")
     plt.xlabel('Cluster')
     plt.ylabel('ВДС')
     plt.show()
 
 # сохранить данные по всем кластерам в эксель файле в исходных значениях
 def saveallclusters(clusts):
-    norm = pd.read_csv("../datasets/fornorm VDS_s.csv")
+    norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
 
-    writer = pd.ExcelWriter("Clusters VDS_s.xlsx")
+    writer = pd.ExcelWriter("Clusters factoriescap_s (costs) 0.xlsx")
     for k in range(len(clusts)):
         for col in norm:
             clusts[k][col] = clusts[k][col] * norm.iloc[0][col]
@@ -33,9 +33,9 @@ def saveallclusters(clusts):
 
 # сохранить данные по всем кластерам в эксель файле в исходных значениях
 def saveallclustersinonesheet(data):
-    norm = pd.read_csv("../datasets/fornorm VDS_s.csv")
+    norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
 
-    writer = pd.ExcelWriter("Clusters VDS_s.xlsx")
+    writer = pd.ExcelWriter("Clusters factoriescap_s (costs) 0.xlsx")
     for col in norm:
         data[col] = data[col] * norm.iloc[0][col]
 
@@ -46,27 +46,27 @@ def saveallclustersinonesheet(data):
 
     writer.close()
 
-k = 4  # кол-во кластеров
+k = 6 # кол-во кластеров
 
-data = pd.read_csv('../datasets/VDS_s.csv')
+data = pd.read_csv('../datasets/factoriescap_s (costs) 0.csv')
 data = data.sample(frac=1)  # перетасовка
 
 # модель кластеризации
 clust_model = KMeans(n_clusters=k, random_state=None, n_init='auto')
-clust_model.fit(data.iloc[:, 4:])  # 3 (без sector, ovked2, year и VDS)
+clust_model.fit(data.iloc[:, 4:])  # 3 (без sector, ovked2, year и key-indicator)
 
 # оценка модели и получение центроидов
 print(clust_model.inertia_)
 centroids = clust_model.cluster_centers_
-
-# разметка данных согласно кластеру
-data['clust'] = clust_model.labels_
 
 # трансформация в 2D методом компонент
 pca = PCA(2)
 pca2 = pca.fit_transform(data.iloc[:, 4:])
 data['x'] = pca2[:, 0]
 data['y'] = pca2[:, 1]
+
+# разметка данных согласно кластеру
+data['clust'] = clust_model.labels_
 
 # разделяем кластеры по независимым массивам (массив массивов)
 clusts = []

@@ -20,12 +20,11 @@ def normbymax(trainset):
         for j in range(len(trainset)):
             trainset[j][k] = trainset[j][k] / maxi
 
-    features = ['VDS_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s',
-                  'RDcosts_s', 'RDsalary_s']
+    features = ['factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
 
     tmpp = np.array(tmpp)
     tmpp = pd.DataFrame([tmpp], columns=features)
-    tmpp.to_csv("fornorm VDS_s.csv", index=False)
+    tmpp.to_csv("fornorm factoriescap_s (costs) 0.csv", index=False)
 
     return trainset
 
@@ -49,22 +48,21 @@ def normbyinf(trainset, rubfeatures):
 
 
 
-features = ['VDS_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s',
-                  'RDcosts_s', 'RDsalary_s']
+features = ['ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
 
 # признаки для ценового нормирования
 allrubfeatures = ['VDS_s', 'AIcosts_s' 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s',
                   'RDcosts_s', 'RDsalary_s', 'RDequip_s', 'factoriescap_s']
 
 # получение и сортировка данных
-rawdata = pd.read_csv("../data/VDS_s.csv")
+rawdata = pd.read_csv("../data/factoriescap_s.csv")
 rawdata = rawdata.sort_values(by=['okved2', 'year'])
 
 tempset = []
-for k in range(len(features) - 1):
-    tempset = pd.read_csv('../data/'+features[k + 1]+'.csv')
-    tempset = tempset[tempset.columns.drop('sector')]
-    rawdata = rawdata.merge(tempset, on=['okved2', 'year'], how='left')
+for k in range(len(features)):
+    tempset = pd.read_csv('../data/'+features[k]+'.csv')
+    tempset = tempset[tempset.columns.drop('okved2')]
+    rawdata = rawdata.merge(tempset, on=['sector', 'year'], how='left')
 
 rawdata = rawdata.dropna()
 
@@ -73,10 +71,9 @@ rawdata = normbyinf(rawdata, features)
 rawdata = np.array(rawdata)
 rawdata = normbymax(rawdata)
 
-features = ['sector', 'okved2', 'year', 'VDS_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s',
-            'RDcosts_s', 'RDsalary_s']
+features = ['sector', 'okved2', 'year', 'factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
 
 rawdata = pd.DataFrame(rawdata, columns=features)
-rawdata.to_csv('VDS_s.csv', index=False)
+rawdata.to_csv('factoriescap_s (costs) 0.csv', index=False)
 
 print('done')
