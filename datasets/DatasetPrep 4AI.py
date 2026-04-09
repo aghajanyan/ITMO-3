@@ -20,11 +20,11 @@ def normbymax(trainset):
         for j in range(len(trainset)):
             trainset[j][k] = trainset[j][k] / maxi
 
-    features = ['factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
+    features = ['factoriescap_s', 'ITusage_s', 'AIusage_s', 'BDusage_s']
 
     tmpp = np.array(tmpp)
     tmpp = pd.DataFrame([tmpp], columns=features)
-    tmpp.to_csv("fornorm factoriescap_s (costs) 0.csv", index=False)
+    tmpp.to_csv("fornorm factoriescap_s (usage) 0.csv", index=False)
 
     return trainset
 
@@ -48,7 +48,7 @@ def normbyinf(trainset, rubfeatures):
 
 
 
-features = ['ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
+features = ['ITusage_s', 'AIusage_s', 'BDusage_s']
 
 # признаки для ценового нормирования
 allrubfeatures = ['VDS_s', 'AIcosts_s' 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s',
@@ -66,14 +66,14 @@ for k in range(len(features)):
 
 rawdata = rawdata.dropna()
 
-rawdata = normbyinf(rawdata, features)
+rawdata = normbyinf(rawdata, ['factoriescap_s'])
 
 rawdata = np.array(rawdata)
 rawdata = normbymax(rawdata)
 
-features = ['sector', 'okved2', 'year', 'factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
+features = ['sector', 'okved2', 'year', 'factoriescap_s', 'ITusage_s', 'AIusage_s', 'BDusage_s']
 
 rawdata = pd.DataFrame(rawdata, columns=features)
-rawdata.to_csv('factoriescap_s (costs) 0.csv', index=False)
+rawdata.to_csv('factoriescap_s (usage) 0.csv', index=False)
 
 print('done')

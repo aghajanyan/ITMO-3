@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-data = pd.read_csv('../datasets/factoriescap_s (costs) 0.csv')
+data = pd.read_csv('../datasets/factoriescap_s (usage) 0.csv')
 
 error = []
 tmper = []
