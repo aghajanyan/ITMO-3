@@ -20,6 +20,37 @@ def getmedian(data2):
     plt.ylabel('ВДС')
     plt.show()
 
+# разделить кластер на нижний/верхний субкластер согласно медиане
+def savesubcluster(clusts):
+    norm = pd.read_csv('../datasets/fornorm '+ datasetname +'.csv')
+
+    for a in range(len(clusts)):
+        for col in norm:
+            clusts[a][col] = clusts[a][col] * norm.iloc[0][col]
+
+    final = []
+    tmp = []
+    for a in range(len(clusts)):
+        for y in range(2):
+            tmp.append(a)
+            for col in norm:
+                median = clusts[a][col].median()
+                if y == 0:
+                    subclust = clusts[a][clusts[a][col] < median][col].mean()
+                else:
+                    subclust = clusts[a][clusts[a][col] > median][col].mean()
+                tmp.append(subclust)
+
+            final.append(tmp)
+            tmp = []
+
+    final = np.array(final)
+    features = list(norm.columns)
+    features.insert(0, 'clust')
+    final = pd.DataFrame(final, columns=features)
+    final.to_excel('median of '+ str(k) +' clusters ('+datasetname+').xlsx', index=False)
+
+
 # сохранить медианные значения каждого кластера для последующего анализа
 def saveallmedians(clusts):
     norm = pd.read_csv('../datasets/fornorm '+ datasetname +'.csv')
@@ -97,11 +128,14 @@ for i in range(k):
 # вывод графика с медианными значениями
 getmedian(data)
 
+# сохранить субкластеры
+savesubcluster(clusts)
+
 # сохранить медианы кластеров в эксель
-saveallmedians(clusts)
+#saveallmedians(clusts)
 
 # сохраниить полные данные кластеров в эксель
-saveallclustersinonesheet(data)
+#saveallclustersinonesheet(data)
 
 # визуализация кластеризации
 for i in range(k):
