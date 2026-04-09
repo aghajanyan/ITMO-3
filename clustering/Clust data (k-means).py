@@ -8,6 +8,9 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import seaborn as sns
 
+k = 4 # кол-во кластеров
+datasetname = 'factoriescap_s (usage) 0' # название датасета
+
 # медианное значение ключевого параметра в кластере
 def getmedian(data2):
     sns.boxplot(x='clust', y='factoriescap_s', data=data2, palette='viridis')
@@ -19,14 +22,14 @@ def getmedian(data2):
 
 # сохранить медианные значения каждого кластера для последующего анализа
 def saveallmedians(clusts):
-    norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
+    norm = pd.read_csv('../datasets/fornorm '+ datasetname +'.csv')
 
     final = []
     tmp = []
-    for k in range(len(clusts)):
-        tmp.append(k)
+    for a in range(len(clusts)):
+        tmp.append(a)
         for col in norm:
-            tmp.append(clusts[k][col].median() * norm.iloc[0][col])
+            tmp.append(clusts[a][col].median() * norm.iloc[0][col])
 
         final.append(tmp)
         tmp = []
@@ -35,27 +38,27 @@ def saveallmedians(clusts):
     features = list(norm.columns)
     features.insert(0, 'clust')
     final = pd.DataFrame(final, columns=features)
-    final.to_excel("median of "+str(len(clusts))+" clusters (factoriescap_s (costs) 0).xlsx", index=False)
+    final.to_excel('median of '+ str(k) +' clusters ('+datasetname+').xlsx', index=False)
 
 # сохранить данные по всем кластерам в эксель файле в исходных значениях
 def saveallclustersinseparatesheet(clusts):
     norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
 
     writer = pd.ExcelWriter("Clusters factoriescap_s (costs) 0.xlsx")
-    for k in range(len(clusts)):
+    for a in range(len(clusts)):
         for col in norm:
-            clusts[k][col] = clusts[k][col] * norm.iloc[0][col]
+            clusts[a][col] = clusts[a][col] * norm.iloc[0][col]
 
-        clusts[k] = clusts[k].sort_values(by=['okved2', 'year'])
-        clusts[k].to_excel(writer, sheet_name="Cluster " + str(k) + "", index=False)
+        clusts[a] = clusts[a].sort_values(by=['okved2', 'year'])
+        clusts[a].to_excel(writer, sheet_name="Cluster " + str(a) + "", index=False)
 
     writer.close()
 
 # сохранить данные по всем кластерам в эксель файле в исходных значениях
 def saveallclustersinonesheet(data):
-    norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
+    norm = pd.read_csv('../datasets/fornorm '+ datasetname +'.csv')
 
-    writer = pd.ExcelWriter("Clusters 6 factoriescap_s (costs) 0.xlsx")
+    writer = pd.ExcelWriter('Clusters '+ str(k) +' '+ datasetname +'.xlsx')
     for col in norm:
         data[col] = data[col] * norm.iloc[0][col]
 
@@ -66,9 +69,7 @@ def saveallclustersinonesheet(data):
 
     writer.close()
 
-k = 6 # кол-во кластеров
-
-data = pd.read_csv('../datasets/factoriescap_s (costs) 0.csv')
+data = pd.read_csv('../datasets/'+ datasetname +'.csv')
 data = data.sample(frac=1)  # перетасовка
 
 # модель кластеризации
