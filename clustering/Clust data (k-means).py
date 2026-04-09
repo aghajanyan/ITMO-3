@@ -37,7 +37,6 @@ def saveallmedians(clusts):
     final = pd.DataFrame(final, columns=features)
     final.to_excel("median of "+str(len(clusts))+" clusters (factoriescap_s (costs) 0).xlsx", index=False)
 
-
 # сохранить данные по всем кластерам в эксель файле в исходных значениях
 def saveallclustersinseparatesheet(clusts):
     norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
@@ -56,7 +55,7 @@ def saveallclustersinseparatesheet(clusts):
 def saveallclustersinonesheet(data):
     norm = pd.read_csv("../datasets/fornorm factoriescap_s (costs) 0.csv")
 
-    writer = pd.ExcelWriter("Clusters factoriescap_s (costs) 0.xlsx")
+    writer = pd.ExcelWriter("Clusters 6 factoriescap_s (costs) 0.xlsx")
     for col in norm:
         data[col] = data[col] * norm.iloc[0][col]
 
@@ -101,7 +100,7 @@ getmedian(data)
 saveallmedians(clusts)
 
 # сохраниить полные данные кластеров в эксель
-#saveallclustersinonesheet(data)
+saveallclustersinonesheet(data)
 
 # визуализация кластеризации
 for i in range(k):
