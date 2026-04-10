@@ -8,7 +8,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import seaborn as sns
 
-k = 4 # кол-во кластеров
+k = 6 # кол-во кластеров
 datasetname = 'factoriescap_s (costs) 0' # название датасета
 
 # медианное значение ключевого параметра в кластере
