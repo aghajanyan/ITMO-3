@@ -48,8 +48,7 @@ def savesubcluster(clusts):
     features = list(norm.columns)
     features.insert(0, 'clust')
     final = pd.DataFrame(final, columns=features)
-    final.to_excel('median of '+ str(k) +' clusters ('+datasetname+').xlsx', index=False)
-
+    final.to_excel(''+ str(k * 2) +' subclusters ('+datasetname+').xlsx', index=False)
 
 # сохранить медианные значения каждого кластера для последующего анализа
 def saveallmedians(clusts):
@@ -69,7 +68,7 @@ def saveallmedians(clusts):
     features = list(norm.columns)
     features.insert(0, 'clust')
     final = pd.DataFrame(final, columns=features)
-    final.to_excel('median of '+ str(k) +' clusters ('+datasetname+').xlsx', index=False)
+    final.to_excel('median of ' + str(k) + ' clusters (' + datasetname + ').xlsx', index=False)
 
 # сохранить данные по всем кластерам в эксель файле в исходных значениях
 def saveallclustersinseparatesheet(clusts):
@@ -128,14 +127,14 @@ for i in range(k):
 # вывод графика с медианными значениями
 getmedian(data)
 
-# сохранить субкластеры
-savesubcluster(clusts)
-
 # сохранить медианы кластеров в эксель
-#saveallmedians(clusts)
+saveallmedians(clusts)
 
 # сохраниить полные данные кластеров в эксель
-#saveallclustersinonesheet(data)
+saveallclustersinonesheet(data)
+
+# сохранить субкластеры
+savesubcluster(clusts)
 
 # визуализация кластеризации
 for i in range(k):
