@@ -4,7 +4,8 @@ import random
 import matplotlib.pyplot as plt
 import pandas as pd
 from sympy import false
-
+import copy
+import scipy.stats as sts
 
 # нормализация знечений признаков от 0 до 1 (с сохранением файла с нормализаторами (макс.))
 def normbymax(trainset):
@@ -24,7 +25,7 @@ def normbymax(trainset):
 
     tmpp = np.array(tmpp)
     tmpp = pd.DataFrame([tmpp], columns=features)
-    tmpp.to_csv("fornorm factoriescap_s (costs) 0.csv", index=False)
+    tmpp.to_csv("fornorm factoriescap_s (costs) 0 prop visnorm.csv", index=False)
 
     return trainset
 
@@ -46,6 +47,16 @@ def normbyinf(trainset, rubfeatures):
     trainset = trainset[trainset.columns.drop('inf')]
     return trainset
 
+# IQR от Кирилла
+def remove_outliers(data: pd.DataFrame) -> pd.DataFrame:
+    data = copy.deepcopy(data)
+
+    for col in data.columns:
+        if col != 'sector' and col != 'year' and col != 'okved2':
+            data = data[(data[col] < np.quantile(data[col], 0.75) + 4 * sts.iqr(data[col])) &
+                        (data[col] > np.quantile(data[col], 0.25) - 4 * sts.iqr(data[col]))]
+
+    return data
 
 
 features = ['factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
@@ -68,12 +79,23 @@ rawdata = rawdata.dropna()
 
 rawdata = normbyinf(rawdata, features)
 
-maxfactor = rawdata['factoriescap_s'].max()
-yearmin = rawdata['year'].min()
+#rawdata = remove_outliers(rawdata)
 
-#rawdata['skvozcosts_s'] = rawdata['skvozcosts_s'] / rawdata['ITcosts_s']
-#rawdata['trainingcosts_s'] = rawdata['trainingcosts_s'] / rawdata['ITcosts_s']
-#rawdata['ITcosts_s'] = rawdata['ITcosts_s'] / rawdata['factoriescap_s']
+# на основе визуальной нормализации
+rawdata = rawdata[rawdata['okved2'] != 'C']
+rawdata = rawdata[(rawdata['okved2'] != '19') | (rawdata['year'] != 2022)]
+rawdata = rawdata[(rawdata['okved2'] != '19') | (rawdata['year'] != 2023)]
+
+rawdata = rawdata[(rawdata['okved2'] != '19.2') | (rawdata['year'] != 2022)]
+rawdata = rawdata[(rawdata['okved2'] != '19.2') | (rawdata['year'] != 2023)]
+
+
+rawdata = rawdata[(rawdata['okved2'] != '08') | (rawdata['year'] != 2021)]
+rawdata = rawdata[(rawdata['okved2'] != 'B') | (rawdata['year'] != 2021)]
+
+rawdata['skvozcosts_s'] = rawdata['skvozcosts_s'] / rawdata['ITcosts_s']
+rawdata['trainingcosts_s'] = rawdata['trainingcosts_s'] / rawdata['ITcosts_s']
+rawdata['ITcosts_s'] = rawdata['ITcosts_s'] / rawdata['factoriescap_s']
 
 rawdata = np.array(rawdata)
 rawdata = normbymax(rawdata)
@@ -81,6 +103,6 @@ rawdata = normbymax(rawdata)
 features = ['sector', 'okved2', 'year', 'factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
 
 rawdata = pd.DataFrame(rawdata, columns=features)
-rawdata.to_csv('factoriescap_s (costs) 0.csv', index=False)
+rawdata.to_csv('factoriescap_s (costs) 0 prop visnorm.csv', index=False)
 
 print('done')
