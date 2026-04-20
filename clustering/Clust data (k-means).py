@@ -128,13 +128,13 @@ for i in range(k):
 getmedian(data)
 
 # сохранить медианы кластеров в эксель
-saveallmedians(clusts)
+#saveallmedians(clusts)
 
 # сохраниить полные данные кластеров в эксель
-saveallclustersinonesheet(data)
+#saveallclustersinonesheet(data)
 
 # сохранить субкластеры
-savesubcluster(clusts)
+#savesubcluster(clusts)
 
 # визуализация кластеризации
 for i in range(k):
