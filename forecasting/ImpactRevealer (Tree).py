@@ -3,6 +3,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
@@ -21,10 +22,14 @@ def MLS(x, y):
     b = (sumy - a * sumx) / n
     return a, b
 
-maxfactoriescap_s = 48404921.544
-#maxfactoriescap_s = 87323581.0
+datasetname = 'factoriescap_s (costs) 0 visnorm' # название датасета
 
-data = pd.read_csv('../datasets/factoriescap_s (costs) 0 visnorm.csv')
+# данные для нормализации (получение максимального значения factoriescap_s)
+norm = pd.read_csv('../datasets/fornorm ' + datasetname + '.csv')
+maxfactoriescap_s = norm.iloc[0]['factoriescap_s']
+
+# получение датасета
+data = pd.read_csv('../datasets/'+ datasetname +'.csv')
 data = data.drop(columns=['sector', 'okved2', 'year'])
 
 data = data.sample(frac=1)  # перетасовка
@@ -60,7 +65,13 @@ plt.ylabel('Predictied values')
 plt.legend()
 plt.show()
 
+#Корреляционная матрица Пирсона
+cor = data.corr()
+sns.heatmap(cor, annot=True, cmap=plt.cm.Reds)
+plt.show()
+
 # значимость факторов
+plt.title("Значимость признаков на прогноз factoriescap_s (объем производства собственных товаров, услуг итд")
 data = data[data.columns.drop('factoriescap_s')]
 important = model.feature_importances_
 
