@@ -24,7 +24,7 @@ def MLS(x, y):
 
 
 # получение датасета
-data = pd.read_csv('classification prop.csv')
+data = pd.read_csv('classification prop 6.csv')
 data = data.drop(columns=['sector', 'okved2', 'year', 'factoriescap_s','x' , 'y'])
 
 data = data.sample(frac=1)  # перетасовка

@@ -8,8 +8,8 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import seaborn as sns
 
-k = 3 # кол-во кластеров
-datasetname = 'factoriescap_s (costs) 0 visnorm' # название датасета
+k = 6 # кол-во кластеров
+datasetname = 'factoriescap_s (costs) 0 prop visnorm' # название датасета
 
 # медианное значение ключевого параметра в кластере
 def getmedian(data2):
@@ -118,6 +118,8 @@ data['y'] = pca2[:, 1]
 
 # разметка данных согласно кластеру
 data['clust'] = clust_model.labels_
+
+data.to_csv('classification prop 6.csv', index=False)
 
 # разделяем кластеры по независимым массивам (массив массивов)
 clusts = []

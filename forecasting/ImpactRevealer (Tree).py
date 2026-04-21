@@ -22,7 +22,7 @@ def MLS(x, y):
     b = (sumy - a * sumx) / n
     return a, b
 
-datasetname = 'factoriescap_s (costs) 0 visnorm' # название датасета
+datasetname = 'factoriescap_s (costs) 0 prop visnorm' # название датасета
 
 # данные для нормализации (получение максимального значения factoriescap_s)
 norm = pd.read_csv('../datasets/fornorm ' + datasetname + '.csv')
@@ -42,7 +42,8 @@ datasetout = np.array(data[['factoriescap_s']])
 trainin, testin, trainout, testout = train_test_split(datasetin, datasetout, test_size=0.2, random_state=42)
 
 # модель
-model = RandomForestRegressor(n_estimators=100, random_state=0)
+model = RandomForestRegressor(n_estimators=100, criterion='absolute_error', random_state=0)
+
 model.fit(trainin, trainout.ravel())
 
 predtrain = model.predict(trainin)
@@ -57,9 +58,9 @@ print('R2 on training set: ', errortrain)
 print('R2 on testing set: ', errortest)
 
 # вывод отклонения прогноза от реальных значений
-scale = np.linspace(trainout.min() * maxfactoriescap_s, trainout.max() * maxfactoriescap_s, 100)
-plt.scatter(testout * maxfactoriescap_s, predtest * maxfactoriescap_s, c='black', alpha=.3, label='Testing set')
-plt.plot([0, maxfactoriescap_s], [0, maxfactoriescap_s], ls='--', c='red', label='Ideal')
+scale = np.linspace(trainout.min(), trainout.max(), 100)
+plt.scatter(testout, predtest, c='black', alpha=.3, label='Testing set')
+plt.plot([0,1], [0, 1], ls='--', c='red', label='Ideal')
 plt.xlabel('Actual values')
 plt.ylabel('Predictied values')
 plt.legend()
