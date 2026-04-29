@@ -2,7 +2,7 @@ factoriescap_s (costs) 0.csv - датасет основанный на factorie
 
 factoriescap_s (usage) 0.csv - датасет основанный на factoriescap_s, включающий следующие индикаторы: 'ITusage_s', 'AIusage_s', 'BDusage_s' (350 пример, мёрдж через 'sector'/'year')
 
-factoriescap_s (research) 0.csv - датасет основанный на factoriescap_s, включающий следующие индикаторы: 'researchorg_s', 'researchersavg_s', 'researchers_s' (332 пример, мёрдж через 'sector'/'year')
+factoriescap_s (research) 0 visnorm.csv - датасет основанный на factoriescap_s, включающий следующие индикаторы: 'researchorg_s', 'researchersavg_s' (330 пример, мёрдж через 'sector'/'year')
 
 *Приставка visnorm предполагает визуальную нормализацию (удаление наиболее сильных выбросов)
 
