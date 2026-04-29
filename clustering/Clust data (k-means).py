@@ -7,8 +7,9 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import seaborn as sns
+import copy
 
-k = 6 # кол-во кластеров
+k = 4 # кол-во кластеров
 datasetname = 'factoriescap_s (costs) 0 prop visnorm' # название датасета
 
 # медианное значение ключевого параметра в кластере
@@ -30,15 +31,16 @@ def savesubcluster(clusts):
 
     final = []
     tmp = []
+    spliter = datasetname.split(' ')
     for a in range(len(clusts)):
         for y in range(2):
             tmp.append(a)
             for col in norm:
-                median = clusts[a][col].median()
+                median = clusts[a][spliter[0]].median()
                 if y == 0:
-                    subclust = clusts[a][clusts[a][col] < median][col].mean()
+                    subclust = clusts[a][clusts[a][spliter[0]] < median][col].mean()
                 else:
-                    subclust = clusts[a][clusts[a][col] > median][col].mean()
+                    subclust = clusts[a][clusts[a][spliter[0]] > median][col].mean()
                 tmp.append(subclust)
 
             final.append(tmp)
@@ -127,16 +129,16 @@ for i in range(k):
     clusts.append(data[data['clust'] == i])
 
 # вывод графика с медианными значениями
-getmedian(data)
+getmedian(data.copy())
 
 # сохранить медианы кластеров в эксель
-#saveallmedians(clusts)
+saveallmedians(copy.deepcopy(clusts))
 
 # сохраниить полные данные кластеров в эксель
-#saveallclustersinonesheet(data)
+saveallclustersinonesheet(data.copy())
 
 # сохранить субкластеры
-#savesubcluster(clusts)
+savesubcluster(copy.deepcopy(clusts))
 
 # визуализация кластеризации
 for i in range(k):
