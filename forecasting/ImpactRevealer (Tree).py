@@ -22,24 +22,25 @@ def MLS(x, y):
     b = (sumy - a * sumx) / n
     return a, b
 
-datasetname = 'factoriescap_s (costs) 0 prop visnorm' # название датасета
+datasetname = 'VDS_r (costs_r) 1 prop IQR' # название датасета
+output_y = 'VDS_r' # прогнозируемый признак
 
-# данные для нормализации (получение максимального значения factoriescap_s)
+# данные для нормализации (получение максимального значения для выхода)
 norm = pd.read_csv('../datasets/fornorm ' + datasetname + '.csv')
-maxfactoriescap_s = norm.iloc[0]['factoriescap_s']
+maxout = norm.iloc[0][output_y]
 
 # получение датасета
 data = pd.read_csv('../datasets/'+ datasetname +'.csv')
-data = data.drop(columns=['sector', 'okved2', 'year'])
+data = data.drop(columns=['region', 'okato', 'year'])
 
 data = data.sample(frac=1)  # перетасовка
 
 # разбиение датасета на входные признаки и выходной результат (риск социального конфликта)
-datasetin = np.array(data[data.columns.drop('factoriescap_s')])
-datasetout = np.array(data[['factoriescap_s']])
+datasetin = np.array(data[data.columns.drop(output_y)])
+datasetout = np.array(data[[output_y]])
 
 # разбиение на обучающую и тестовую выборку
-trainin, testin, trainout, testout = train_test_split(datasetin, datasetout, test_size=0.2, random_state=42)
+trainin, testin, trainout, testout = train_test_split(datasetin, datasetout, test_size=0.1, random_state=42)
 
 # модель
 model = RandomForestRegressor(n_estimators=100, criterion='absolute_error', random_state=0)
@@ -47,10 +48,10 @@ model = RandomForestRegressor(n_estimators=100, criterion='absolute_error', rand
 model.fit(trainin, trainout.ravel())
 
 predtrain = model.predict(trainin)
-errortrain = r2_score(trainout * maxfactoriescap_s, predtrain * maxfactoriescap_s)
+errortrain = r2_score(trainout * maxout, predtrain * maxout)
 
 predtest = model.predict(testin)
-errortest = r2_score(testout * maxfactoriescap_s, predtest * maxfactoriescap_s)
+errortest = r2_score(testout * maxout, predtest * maxout)
 
 #a, b = MLS(testout, predtest)
 
@@ -72,8 +73,8 @@ sns.heatmap(cor, annot=True, cmap=plt.cm.Reds)
 plt.show()
 
 # значимость факторов
-plt.title("Значимость признаков на прогноз factoriescap_s (объем производства собственных товаров, услуг итд")
-data = data[data.columns.drop('factoriescap_s')]
+plt.title("Значимость признаков на прогноз "+ output_y)
+data = data[data.columns.drop(output_y)]
 important = model.feature_importances_
 
 forplot = pd.DataFrame(data=important, index=data.columns)
