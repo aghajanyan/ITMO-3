@@ -9,7 +9,7 @@ import scipy.stats as sts
 import seaborn as sns
 
 # нормализация знечений признаков от 0 до 1 (с сохранением файла с нормализаторами (макс.))
-def normbymax(rawdata, cols):
+def normbymax(rawdata, cols, datasetname):
 
     maxi = []
     for a in cols:
@@ -18,7 +18,7 @@ def normbymax(rawdata, cols):
 
     maxi = np.array(maxi)
     maxi = pd.DataFrame([maxi], columns=cols)
-    maxi.to_csv("fornorm VDS_r (ITcosts_r) 0 prop IQR.csv", index=False)
+    maxi.to_csv('fornorm '+ datasetname +'.csv', index=False)
 
     return rawdata
 
@@ -82,7 +82,8 @@ def visnorm(rawdata):
     #rawdata = rawdata[(rawdata['okved2'] != '08') | (rawdata['year'] != 2021)]
     rawdata = rawdata[(rawdata['okved2'] != 'B') | (rawdata['year'] != 2021)]
 
-features = ['VDS_r', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r']
+features = ['VDS_r', 'ITusage_r', 'AIusage_r', 'BDusage_r']
+
 
 # признаки для ценового нормирования
 allrubfeatures = ['VDS_s', 'AIcosts_s' 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s',
@@ -90,6 +91,9 @@ allrubfeatures = ['VDS_s', 'AIcosts_s' 'ITcosts_s', 'skvozcosts_s', 'trainingcos
 
 allrubfeatures_r = ['VDS_r', 'AIcosts_r' 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r',
                   'RDcosts_r', 'RDsalary_r', 'RDequip_r', 'factoriescap_r']
+
+
+datasetname = 'VDS_r (usage_r) 0 IQR'
 
 # получение и сортировка данных
 rawdata = pd.read_csv("../data/VDS_r.csv", dtype={'okato': str})
@@ -105,21 +109,27 @@ rawdata = rawdata.dropna()
 
 
 minyear = rawdata['year'].min()
-rawdata = normbyinf(rawdata, features)
+rawdata = normbyinf(rawdata, ['VDS_r'])
 
 #visanalysis(rawdata)
 
+"""
 rawdata['skvozcosts_r'] = rawdata['skvozcosts_r'] / rawdata['ITcosts_r']
 rawdata['trainingcosts_r'] = rawdata['trainingcosts_r'] / rawdata['ITcosts_r']
 rawdata['ITcosts_r'] = rawdata['ITcosts_r'] / rawdata['VDS_r']
 
+rawdata['RDsalary_r'] = rawdata['RDsalary_r'] / rawdata['RDcosts_r']
+rawdata['RDequip_r'] = rawdata['RDequip_r'] / rawdata['RDcosts_r']
+rawdata['RDcosts_r'] = rawdata['RDcosts_r'] / rawdata['VDS_r']
+"""
+
 rawdata = remove_outliers(rawdata)
 
-rawdata = normbymax(rawdata, features)
+rawdata = normbymax(rawdata, features, datasetname)
 
 #features = ['sector', 'okved2', 'year', 'VDS_r', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r']
 
 #rawdata = pd.DataFrame(rawdata, columns=features)
-rawdata.to_csv('VDS_r (ITcosts_r) 0 prop IQR.csv', index=False)
+rawdata.to_csv(''+ datasetname +'.csv', index=False)
 
 print('done')
