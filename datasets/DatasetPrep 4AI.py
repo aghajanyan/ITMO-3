@@ -7,6 +7,8 @@ from sympy import false
 import copy
 import scipy.stats as sts
 import seaborn as sns
+from tensorflow.python.autograph.core.config_lib import Convert
+
 
 # нормализация знечений признаков от 0 до 1 (с сохранением файла с нормализаторами (макс.))
 def normbymax(rawdata, cols, datasetname):
@@ -82,7 +84,26 @@ def visnorm(rawdata):
     #rawdata = rawdata[(rawdata['okved2'] != '08') | (rawdata['year'] != 2021)]
     rawdata = rawdata[(rawdata['okved2'] != 'B') | (rawdata['year'] != 2021)]
 
-features = ['VDS_r', 'ITusage_r', 'AIusage_r', 'BDusage_r']
+def separatesector(rawdata, features):
+    sepsector = []
+    for i in range(len(rawdata)):
+        try:
+            if int(rawdata.iloc[i, 1]) >= 10 and int(rawdata.iloc[i, 1]) <= 33:
+                sepsector.append(rawdata.iloc[i])
+        except ValueError:
+            pass
+
+    sepsector = pd.DataFrame(sepsector)
+    sepsector = sepsector.reset_index(drop=True)
+    sepsector = normbyinf(sepsector, features)
+
+    sepsector['skvozcosts_s'] = sepsector['skvozcosts_s'] / sepsector['ITcosts_s']
+    sepsector['trainingcosts_s'] = sepsector['trainingcosts_s'] / sepsector['ITcosts_s']
+    sepsector['ITcosts_s'] = sepsector['ITcosts_s'] / sepsector['factoriescap_s']
+
+    sepsector.to_excel('industrial sector (factoriescap_s) 0.xlsx', index=False)
+
+features = ['factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
 
 
 # признаки для ценового нормирования
@@ -93,25 +114,33 @@ allrubfeatures_r = ['VDS_r', 'AIcosts_r' 'ITcosts_r', 'skvozcosts_r', 'trainingc
                   'RDcosts_r', 'RDsalary_r', 'RDequip_r', 'factoriescap_r']
 
 
-datasetname = 'VDS_r (usage_r) 0 IQR'
+datasetname = 'agro-sector'
 
 # получение и сортировка данных
-rawdata = pd.read_csv("../data/VDS_r.csv", dtype={'okato': str})
-rawdata = rawdata.sort_values(by=['okato', 'year'])
+#rawdata = pd.read_csv("../data/'factoriescap_s'", dtype={'okato': str})
+rawdata = pd.read_csv("../data/factoriescap_s.csv")
+rawdata = rawdata.sort_values(by=['okved2', 'year'])
 
 tempset = []
 for k in range(1, len(features)):
-    tempset = pd.read_csv('../data/'+features[k]+'.csv', dtype={'okato': str})
-    tempset = tempset[tempset.columns.drop('region')]
-    rawdata = rawdata.merge(tempset, on=['okato', 'year'], how='left')
+    #tempset = pd.read_csv('../data/'+features[k]+'.csv', dtype={'okato': str})
+    tempset = pd.read_csv('../data/' + features[k] + '.csv')
+    tempset = tempset[tempset.columns.drop('sector')]
+    rawdata = rawdata.merge(tempset, on=['okved2', 'year'], how='left')
 
 rawdata = rawdata.dropna()
 
+# Выделить отдельный сектор в эксель файл для анализа
+separatesector(rawdata, features)
 
 minyear = rawdata['year'].min()
 rawdata = normbyinf(rawdata, ['VDS_r'])
 
 #visanalysis(rawdata)
+rawdata['AIusage_r'] = rawdata['AIusage_r'] / rawdata['ITusage_r']
+rawdata['BDusage_r'] = rawdata['BDusage_r'] / rawdata['ITusage_r']
+rawdata = rawdata[rawdata.columns.drop('ITusage_r')]
+features.remove('ITusage_r')
 
 """
 rawdata['skvozcosts_r'] = rawdata['skvozcosts_r'] / rawdata['ITcosts_r']
