@@ -3,11 +3,11 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import pandas as pd
+from dask_expr import DataFrame
 from sympy import false
 import copy
 import scipy.stats as sts
 import seaborn as sns
-from tensorflow.python.autograph.core.config_lib import Convert
 
 
 # нормализация знечений признаков от 0 до 1 (с сохранением файла с нормализаторами (макс.))
@@ -84,11 +84,40 @@ def visnorm(rawdata):
     #rawdata = rawdata[(rawdata['okved2'] != '08') | (rawdata['year'] != 2021)]
     rawdata = rawdata[(rawdata['okved2'] != 'B') | (rawdata['year'] != 2021)]
 
+def regionanalysis(rawdata, features):
+
+    rawdata = normbyinf(rawdata, features)
+    rawdata = rawdata.sort_values(by=['okato', 'VDS_r'], ascending=[True, False])
+    rawdata = rawdata.reset_index(drop=True)
+
+    year = 2020
+    for i in range(5):
+        rawdata['year'].loc[rawdata['year'] == year] = i
+        year +=1
+
+    okato = rawdata['okato'].unique()
+
+    neworder = ['region', 'okato' ,'VDS_r', 'year', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r']
+    rawdata = rawdata[neworder]
+    final = pd.DataFrame()
+    for a in okato:
+        temp = rawdata[rawdata['okato'] == a]
+        for col in temp.columns:
+            if col != 'okato' and col != 'region':
+                temp[col] = temp[col] / temp[col].max()
+
+        final = pd.concat([final, temp])
+        final.loc[len(final)] = np.nan
+
+    with pd.ExcelWriter('regions analysis.xlsx', engine='openpyxl') as writer:
+        rawdata.to_excel(writer, sheet_name='regions', index=False)
+        final.to_excel(writer, sheet_name='patterns', index=False)
+
 def separatesector(rawdata, features):
     sepsector = []
     for i in range(len(rawdata)):
         try:
-            if int(rawdata.iloc[i, 1]) >= 10 and int(rawdata.iloc[i, 1]) <= 33:
+            if int(rawdata.iloc[i, 1]) >= 41 and int(rawdata.iloc[i, 1]) <= 43:
                 sepsector.append(rawdata.iloc[i])
         except ValueError:
             pass
@@ -99,11 +128,15 @@ def separatesector(rawdata, features):
 
     sepsector['skvozcosts_s'] = sepsector['skvozcosts_s'] / sepsector['ITcosts_s']
     sepsector['trainingcosts_s'] = sepsector['trainingcosts_s'] / sepsector['ITcosts_s']
-    sepsector['ITcosts_s'] = sepsector['ITcosts_s'] / sepsector['factoriescap_s']
+    #sepsector['ITcosts_s'] = sepsector['ITcosts_s'] / sepsector['factoriescap_s']
 
-    sepsector.to_excel('industrial sector (factoriescap_s) 0.xlsx', index=False)
+    #sepsector['RDsalary_s'] = sepsector['RDsalary_s'] / sepsector['RDcosts_s']
+    #sepsector['RDequip_s'] = sepsector['RDequip_s'] / sepsector['RDcosts_s']
 
-features = ['factoriescap_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s']
+
+    sepsector.to_excel('construction sector (factoriescap_s) 0.xlsx', index=False)
+
+features = ['VDS_r', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r']
 
 
 # признаки для ценового нормирования
@@ -117,24 +150,27 @@ allrubfeatures_r = ['VDS_r', 'AIcosts_r' 'ITcosts_r', 'skvozcosts_r', 'trainingc
 datasetname = 'agro-sector'
 
 # получение и сортировка данных
-#rawdata = pd.read_csv("../data/'factoriescap_s'", dtype={'okato': str})
-rawdata = pd.read_csv("../data/factoriescap_s.csv")
-rawdata = rawdata.sort_values(by=['okved2', 'year'])
+rawdata = pd.read_csv("../data/VDS_r.csv", dtype={'okato': str})
+#rawdata = pd.read_csv("../data/VDS_r.csv")
+rawdata = rawdata.sort_values(by=['okato', 'year'])
 
 tempset = []
 for k in range(1, len(features)):
-    #tempset = pd.read_csv('../data/'+features[k]+'.csv', dtype={'okato': str})
-    tempset = pd.read_csv('../data/' + features[k] + '.csv')
-    tempset = tempset[tempset.columns.drop('sector')]
-    rawdata = rawdata.merge(tempset, on=['okved2', 'year'], how='left')
+    tempset = pd.read_csv('../data/'+features[k]+'.csv', dtype={'okato': str})
+    #tempset = pd.read_csv('../data/' + features[k] + '.csv')
+    tempset = tempset[tempset.columns.drop('region')]
+    rawdata = rawdata.merge(tempset, on=['okato', 'year'], how='left')
 
 rawdata = rawdata.dropna()
 
+# Анализ регионов (подготовка данных под паттерн-анализ)
+regionanalysis(rawdata, features)
+
 # Выделить отдельный сектор в эксель файл для анализа
-separatesector(rawdata, features)
+#separatesector(rawdata, features)
 
 minyear = rawdata['year'].min()
-rawdata = normbyinf(rawdata, ['VDS_r'])
+rawdata = normbyinf(rawdata, ['factoriescap_s'])
 
 #visanalysis(rawdata)
 rawdata['AIusage_r'] = rawdata['AIusage_r'] / rawdata['ITusage_r']
