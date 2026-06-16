@@ -90,6 +90,9 @@ def regionanalysis(rawdata, features):
     rawdata = rawdata.sort_values(by=['okato', 'VDS_r'], ascending=[True, False])
     rawdata = rawdata.reset_index(drop=True)
 
+    rawdata['skvozcosts_r'] = rawdata['skvozcosts_r'] / rawdata['ITcosts_r']
+    rawdata['trainingcosts_r'] = rawdata['trainingcosts_r'] / rawdata['ITcosts_r']
+
     year = 2020
     for i in range(5):
         rawdata['year'].loc[rawdata['year'] == year] = i
@@ -97,7 +100,7 @@ def regionanalysis(rawdata, features):
 
     okato = rawdata['okato'].unique()
 
-    neworder = ['region', 'okato' ,'VDS_r', 'year', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r']
+    neworder = ['region', 'okato' ,'VDS_r', 'year', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r', 'RDcosts_r']
     rawdata = rawdata[neworder]
     final = pd.DataFrame()
     for a in okato:
@@ -109,7 +112,7 @@ def regionanalysis(rawdata, features):
         final = pd.concat([final, temp])
         final.loc[len(final)] = np.nan
 
-    with pd.ExcelWriter('regions analysis.xlsx', engine='openpyxl') as writer:
+    with pd.ExcelWriter('region analysis.xlsx', engine='openpyxl') as writer:
         rawdata.to_excel(writer, sheet_name='regions', index=False)
         final.to_excel(writer, sheet_name='patterns', index=False)
 
@@ -136,7 +139,7 @@ def separatesector(rawdata, features):
 
     sepsector.to_excel('construction sector (factoriescap_s) 0.xlsx', index=False)
 
-features = ['VDS_r', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r']
+features = ['VDS_r', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r', 'RDcosts_r']
 
 
 # признаки для ценового нормирования
