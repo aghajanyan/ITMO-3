@@ -116,6 +116,38 @@ def regionanalysis(rawdata, features):
         rawdata.to_excel(writer, sheet_name='regions', index=False)
         final.to_excel(writer, sheet_name='patterns', index=False)
 
+def sectoranalysis(rawdata, features):
+
+    rawdata = normbyinf(rawdata, features)
+    rawdata = rawdata.sort_values(by=['okved2', 'VDS_s'], ascending=[True, False])
+    rawdata = rawdata.reset_index(drop=True)
+
+    rawdata['skvozcosts_s'] = rawdata['skvozcosts_s'] / rawdata['ITcosts_s']
+    rawdata['trainingcosts_s'] = rawdata['trainingcosts_s'] / rawdata['ITcosts_s']
+
+    year = 2020
+    for i in range(5):
+        rawdata['year'].loc[rawdata['year'] == year] = i
+        year +=1
+
+    okato = rawdata['okved2'].unique()
+
+    neworder = ['sector', 'okved2' ,'VDS_s', 'year', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s', 'RDcosts_s']
+    rawdata = rawdata[neworder]
+    final = pd.DataFrame()
+    for a in okato:
+        temp = rawdata[rawdata['okved2'] == a]
+        for col in temp.columns:
+            if col != 'okved2' and col != 'sector':
+                temp[col] = temp[col] / temp[col].max()
+
+        final = pd.concat([final, temp])
+        final.loc[len(final)] = np.nan
+
+    with pd.ExcelWriter('sector analysis-2.xlsx', engine='openpyxl') as writer:
+        rawdata.to_excel(writer, sheet_name='sectors', index=False)
+        final.to_excel(writer, sheet_name='patterns', index=False)
+
 def separatesector(rawdata, features):
     sepsector = []
     for i in range(len(rawdata)):
@@ -139,7 +171,7 @@ def separatesector(rawdata, features):
 
     sepsector.to_excel('construction sector (factoriescap_s) 0.xlsx', index=False)
 
-features = ['VDS_r', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r', 'RDcosts_r']
+features = ['VDS_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s', 'RDcosts_s']
 
 
 # признаки для ценового нормирования
@@ -153,21 +185,22 @@ allrubfeatures_r = ['VDS_r', 'AIcosts_r' 'ITcosts_r', 'skvozcosts_r', 'trainingc
 datasetname = 'agro-sector'
 
 # получение и сортировка данных
-rawdata = pd.read_csv("../data/VDS_r.csv", dtype={'okato': str})
-#rawdata = pd.read_csv("../data/VDS_r.csv")
-rawdata = rawdata.sort_values(by=['okato', 'year'])
+#rawdata = pd.read_csv("../data/VDS_r.csv", dtype={'okato': str})
+rawdata = pd.read_csv("../data/VDS_s.csv")
+rawdata = rawdata.sort_values(by=['okved2', 'year'])
 
 tempset = []
 for k in range(1, len(features)):
-    tempset = pd.read_csv('../data/'+features[k]+'.csv', dtype={'okato': str})
-    #tempset = pd.read_csv('../data/' + features[k] + '.csv')
-    tempset = tempset[tempset.columns.drop('region')]
-    rawdata = rawdata.merge(tempset, on=['okato', 'year'], how='left')
+    #tempset = pd.read_csv('../data/'+features[k]+'.csv', dtype={'okato': str})
+    tempset = pd.read_csv('../data/' + features[k] + '.csv')
+    tempset = tempset[tempset.columns.drop('sector')]
+    rawdata = rawdata.merge(tempset, on=['okved2', 'year'], how='left')
 
 rawdata = rawdata.dropna()
 
+minyear = rawdata['year'].min()
 # Анализ регионов (подготовка данных под паттерн-анализ)
-regionanalysis(rawdata, features)
+sectoranalysis(rawdata, features)
 
 # Выделить отдельный сектор в эксель файл для анализа
 #separatesector(rawdata, features)
