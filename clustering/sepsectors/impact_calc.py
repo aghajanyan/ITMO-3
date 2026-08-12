@@ -35,7 +35,7 @@ label1 = tk.Label(root, text="Категория задачи", font=("Arial", 1
 label1.pack()
 
 combo = ttk.Combobox(root, values=["Оптимизация", "Прогнозирование", "Распознование", "Логистика", "Комбинаторный поиск"])
-combo.current(0)  # Устанавливаем первый элемент по умолчанию
+combo.current(0)
 combo.pack(pady=(0, 20))
 
 label2 = tk.Label(root, text="Экономическая значимость задачи для ВДС: 0 - отсутствует, 1 - крайне высокая:", font=("Arial", 10))
@@ -46,7 +46,7 @@ slider = tk.Scale(
     root,
     from_=0,
     to=1,
-    resolution=0.01,  # Шаг ползунка (сотые доли)
+    resolution=0.01,
     orient=tk.HORIZONTAL,
     length=300
 )
@@ -58,5 +58,4 @@ button.pack(pady=(0,20))
 label3 = tk.Label(root, text="", fg='green', font=("Arial", 12, "bold"))
 label3.pack()
 
-# Запускаем приложение
 root.mainloop()
