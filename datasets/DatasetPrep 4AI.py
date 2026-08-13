@@ -122,13 +122,15 @@ def sectoranalysis(rawdata, features):
     rawdata = rawdata.sort_values(by=['okved2', 'VDS_s'], ascending=[True, False])
     rawdata = rawdata.reset_index(drop=True)
 
-    rawdata['skvozcosts_s'] = rawdata['skvozcosts_s'] / rawdata['ITcosts_s']
-    rawdata['trainingcosts_s'] = rawdata['trainingcosts_s'] / rawdata['ITcosts_s']
+    #rawdata['skvozcosts_s'] = rawdata['skvozcosts_s'] / rawdata['ITcosts_s']
+    #rawdata['trainingcosts_s'] = rawdata['trainingcosts_s'] / rawdata['ITcosts_s']
 
     year = 2020
     for i in range(5):
         rawdata['year'].loc[rawdata['year'] == year] = i
         year +=1
+
+    #rawdata = rawdata[rawdata['okved2'].str.len() == 1]
 
     okato = rawdata['okved2'].unique()
 
@@ -142,9 +144,10 @@ def sectoranalysis(rawdata, features):
                 temp[col] = temp[col] / temp[col].max()
 
         final = pd.concat([final, temp])
+        final = final.reset_index(drop=True)
         final.loc[len(final)] = np.nan
 
-    with pd.ExcelWriter('sector analysis-2.xlsx', engine='openpyxl') as writer:
+    with pd.ExcelWriter('VDS analysis (sectors only).xlsx', engine='openpyxl') as writer:
         rawdata.to_excel(writer, sheet_name='sectors', index=False)
         final.to_excel(writer, sheet_name='patterns', index=False)
 
