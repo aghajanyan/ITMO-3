@@ -11,6 +11,14 @@ def on_click_save():
     task.append(combo.get())
     combo.set("Оптимизация")
 
+# сброс данных
+def on_click_reset():
+    significance.clear()
+    task.clear()
+    label3.config(text="")
+    slider.set(0)
+    combo.set("Оптимизация")
+
 # вычислить потенциальную выгоду
 def on_click_calc():
     if slider.get() != 0:
@@ -45,7 +53,7 @@ capability = {
 
 # Создаем главное окно
 root = tk.Tk()
-root.title("Potential AI impact v2.0")
+root.title("Potential AI impact v2.1")
 root.geometry("600x300")
 
 label1 = tk.Label(root, text="Категория задачи", font=("Arial", 10))
@@ -74,6 +82,9 @@ button1.pack(pady=(0,20))
 
 button2 = tk.Button(root, text="Вычислить потенциальный вклад", command=on_click_calc, font=("Arial", 10, "bold"))
 button2.pack(pady=(0,20))
+
+button3 = tk.Button(root, text="Сброс", command=on_click_reset, font=("Arial", 10, "bold"), fg='red')
+button3.place(relx=1.0, rely=0.698, x=-120, anchor="e")
 
 label3 = tk.Label(root, text="", fg='green', font=("Arial", 12, "bold"))
 label3.pack()
