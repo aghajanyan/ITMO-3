@@ -52,31 +52,33 @@ def on_click_calc():
 
 def on_click_show():
     global advancedmode
-    advancedmode = True
-    root.geometry("1100x300")
+    if not advancedmode:
+        advancedmode = True
+        root.geometry("1100x300")
 
-    currenttask = combo.get()
-    tbcapmin.insert(0, str(capability[currenttask]['min']))
-    tbcapmax.insert(0, str(capability[currenttask]['max']))
-    tbimpmin.insert(0, str(impact[currenttask]['min']))
-    tbimpmax.insert(0, str(impact[currenttask]['max']))
+        currenttask = combo.get()
+        tbcapmin.insert(0, str(capability[currenttask]['min']))
+        tbcapmax.insert(0, str(capability[currenttask]['max']))
+        tbimpmin.insert(0, str(impact[currenttask]['min']))
+        tbimpmax.insert(0, str(impact[currenttask]['max']))
 
 def on_combo_change(event):
-    tbcapmin.delete(0, "end")
-    tbcapmax.delete(0, "end")
-    tbimpmin.delete(0, "end")
-    tbimpmax.delete(0, "end")
+    if advancedmode:
+        tbcapmin.delete(0, "end")
+        tbcapmax.delete(0, "end")
+        tbimpmin.delete(0, "end")
+        tbimpmax.delete(0, "end")
 
     currenttask = combo.get()
-
-    tbcapmin.insert(0, str(capability[currenttask]['min']))
-    tbcapmax.insert(0, str(capability[currenttask]['max']))
-    tbimpmin.insert(0, str(impact[currenttask]['min']))
-    tbimpmax.insert(0, str(impact[currenttask]['max']))
+    if advancedmode:
+        tbcapmin.insert(0, str(capability[currenttask]['min']))
+        tbcapmax.insert(0, str(capability[currenttask]['max']))
+        tbimpmin.insert(0, str(impact[currenttask]['min']))
+        tbimpmax.insert(0, str(impact[currenttask]['max']))
 
 # Создаем главное окно
 root = tk.Tk()
-root.title("Potential AI impact v3.0")
+root.title("Potential AI impact v3.1")
 root.geometry("600x300")
 root.resizable(False, False)
 
@@ -129,7 +131,7 @@ resbut = tk.Button(butframe, text="Сброс", command=on_click_reset, font=("A
 resbut.grid(row=0, column=1)
 
 label3 = tk.Label(mainframe, text="", fg='green', font=("Arial", 12, "bold"))
-label3.pack()
+label3.pack(pady=25)
 
 # ОСНОВНЫЕ ЭЛЕМЕНТЫ ===
 
