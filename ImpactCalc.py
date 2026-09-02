@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 
-advancedmode = False
-minimp = 0
-maximp = 0
+advancedmode = False    # переключение на расширенные настройки
+minimp = 0  # нижняя граница потенциальной выгоды
+maximp = 0  # верхняя граница потенциальной выгоды
 
 # усредненные выгоды от использования МЛ/ИИ в сравнении с классическими подходами
 impact = {
@@ -14,7 +14,7 @@ impact = {
     "Комбинаторный поиск": {'min': 0.05, 'max': 0.1}
 }
 
-# сложность/вероятность успешной реализации (пока вилка из 0.3 и 0.7)
+# вероятность/сложность успешной реализации (пока вилка из 0.3 и 0.7)
 capability = {
     "Оптимизация": {'min': 0.3, 'max': 0.7},
     "Прогнозирование": {'min': 0.3, 'max': 0.7},
@@ -50,6 +50,7 @@ def on_click_calc():
 
     label3.config(text=f"Потенциальный рост ВДС от {minimp:.1f}% до {maximp:.1f}%")
 
+# переключение на расширенные настройки
 def on_click_show():
     global advancedmode
     if not advancedmode:
@@ -62,6 +63,7 @@ def on_click_show():
         tbimpmin.insert(0, str(impact[currenttask]['min']))
         tbimpmax.insert(0, str(impact[currenttask]['max']))
 
+# изменение класса задачи в комбобоксе
 def on_combo_change(event):
     if advancedmode:
         tbcapmin.delete(0, "end")
@@ -76,7 +78,7 @@ def on_combo_change(event):
         tbimpmin.insert(0, str(impact[currenttask]['min']))
         tbimpmax.insert(0, str(impact[currenttask]['max']))
 
-# Создаем главное окно
+# главное окно
 root = tk.Tk()
 root.title("Potential AI impact v3.1")
 root.geometry("600x300")
@@ -97,7 +99,7 @@ mainframe.pack(side="left", fill="both", expand=True, padx=40, pady=10)
 additionalframe = tk.Frame(root)
 additionalframe.pack(side="left", fill="both", expand=True, padx=40, pady=10)
 
-# ОСНОВНЫЕ ЭЛЕМЕНТЫ ===
+# ОСНОВНЫЕ ЭЛЕМЕНТЫ (начало) ===
 label1 = tk.Label(mainframe, text="Категория задачи", font=("Arial", 10))
 label1.pack()
 
@@ -109,7 +111,7 @@ combo.bind("<<ComboboxSelected>>", on_combo_change)
 label2 = tk.Label(mainframe, text="Экономическая значимость задачи для ВДС: 0 - отсутствует, 1 - крайне высокая:", font=("Arial", 10))
 label2.pack()
 
-# Создаем ползунок
+# ползунок
 slider = tk.Scale(
     mainframe,
     from_=0,
@@ -133,9 +135,10 @@ resbut.grid(row=0, column=1)
 label3 = tk.Label(mainframe, text="", fg='green', font=("Arial", 12, "bold"))
 label3.pack(pady=25)
 
-# ОСНОВНЫЕ ЭЛЕМЕНТЫ ===
+# ОСНОВНЫЕ ЭЛЕМЕНТЫ (конец) ===
 
-# ДОПОЛНИТЕЛЬНЫЕ ЭЛЕМЕНТЫ (РАСШИРЕННЫЕ НАТСРОЙКИ) ===
+# ДОПОЛНИТЕЛЬНЫЕ ЭЛЕМЕНТЫ (начало) ===
+
 label4 = tk.Label(additionalframe, text="Вероятность высококачественного внедрения ML/AI:", font=("Arial", 10))
 label4.pack()
 
@@ -173,6 +176,8 @@ label9.grid(row=0, column=2, padx=(0, 5), sticky="e")
 
 tbimpmax = tk.Entry(impsettings, width=10)
 tbimpmax.grid(row=0, column=3, sticky="w")
+
+# ДОПОЛНИТЕЛЬНЫЕ ЭЛЕМЕНТЫ (конец) ===
 
 
 root.mainloop()
