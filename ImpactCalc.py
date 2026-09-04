@@ -4,6 +4,7 @@ from tkinter import ttk
 advancedmode = False    # переключение на расширенные настройки
 minimp = 0  # нижняя граница потенциальной выгоды
 maximp = 0  # верхняя граница потенциальной выгоды
+adoption = 0
 
 # усредненные выгоды от использования МЛ/ИИ в сравнении с классическими подходами
 impact = {
@@ -30,13 +31,17 @@ def on_click_reset():
     combo.set("Оптимизация")
     global minimp
     global maximp
+    global adoption
     minimp = 0
     maximp = 0
+    adoption = 0
+    mainmenu.entryconfigure(2, label="Количество внедрений: 0")
 
 # вычислить потенциальную выгоду
 def on_click_calc():
     global minimp
     global maximp
+    global adoption
 
     significance = slider.get()
     task = combo.get()
@@ -49,6 +54,8 @@ def on_click_calc():
         maximp += (significance * float(tbimpmax.get()) * float(tbcapmax.get())) * 100
 
     label3.config(text=f"Потенциальный рост ВДС от {minimp:.1f}% до {maximp:.1f}%")
+    adoption += 1
+    mainmenu.entryconfigure(2, label="Количество внедрений: " + str(adoption))
 
 # переключение на расширенные настройки
 def on_click_show():
@@ -80,15 +87,16 @@ def on_combo_change(event):
 
 # главное окно
 root = tk.Tk()
-root.title("Potential AI impact v3.1")
+root.title("Potential AI impact v3.2")
 root.geometry("600x300")
 root.resizable(False, False)
 
 # меню сверхну
 mainmenu = tk.Menu(root)
 toolmenu = tk.Menu(mainmenu, tearoff=0)
-toolmenu.add_command(label="Расширенные настройки", command=on_click_show)
 mainmenu.add_cascade(label="Дополнительно", menu=toolmenu)
+toolmenu.add_command(label="Расширенные настройки", command=on_click_show)
+mainmenu.add_command(label="Количество внедрений: 0")
 root.config(menu=mainmenu)
 
 # структура с основными элементами
