@@ -16,13 +16,17 @@ impact = {
     "Комбинаторный поиск": {'min': 0.05, 'max': 0.1}
 }
 
-# вероятность успешной реализации (уровень технологической готовности: вилка УГТ-3 - УГТ-7)
+# вероятность успешной реализации (уровень технологической готовности: сигмоида)
 capability = {
-    "Оптимизация": {'min': 0.3, 'max': 0.7},
-    "Прогнозирование": {'min': 0.3, 'max': 0.7},
-    "Распознование": {'min': 0.3, 'max': 0.7},
-    "Логистика": {'min': 0.3, 'max': 0.7},
-    "Комбинаторный поиск": {'min': 0.3, 'max': 0.7}
+    "УГТ-1": {0.057},
+    "УГТ-2": {0.119},
+    "УГТ-3": {0.231},
+    "УГТ-4": {0.401},
+    "УГТ-5": {0.599},
+    "УГТ-6": {0.769},
+    "УГТ-7": {0.881},
+    "УГТ-8": {0.943},
+    "УГТ-9": {0.973}
 }
 
 # сброс данных
@@ -30,8 +34,7 @@ def on_click_reset():
     label3.config(text="")
     slider.set(0)
     combo.set("Оптимизация")
-    combocapmin.current(2)
-    combocapmax.current(6)
+    combocap.current(5)
     tbimpmin.delete(0, "end")
     tbimpmax.delete(0, "end")
     tbimpmin.insert(0, str(impact["Оптимизация"]['min']))
@@ -52,15 +55,22 @@ def on_click_calc():
 
     significance = slider.get()
     task = combo.get()
+    TRL = combocap.get()
 
     if not advancedmode:
-        minimp += (significance * impact[task]['min'] * capability[task]['min']) * 100
-        maximp += (significance * impact[task]['max'] * capability[task]['max']) * 100
+        if TRL == "УГТ-1" or TRL == "УГТ-2":
+            minimp += (significance * impact[task]['min'] * float(*capability[TRL])) * 100
+            maximp += (significance * impact[task]['max'] * float(*capability[TRL])) * 100
+        else:
+            minimp += (significance * impact[task]['min'] * (float(*capability[TRL]) - 0.1)) * 100
+            maximp += (significance * impact[task]['max'] * float(*capability[TRL])) * 100
     else:
-        capmin = (combocapmin.current() + 1) / 10
-        capmax = (combocapmax.current() + 1) / 10
-        minimp += (significance * float(tbimpmin.get()) * capmin) * 100
-        maximp += (significance * float(tbimpmax.get()) * capmax) * 100
+        if TRL == "УГТ-1" or TRL == "УГТ-2":
+            minimp += (significance * float(tbimpmin.get()) * float(*capability[TRL])) * 100
+            maximp += (significance * float(tbimpmax.get()) * float(*capability[TRL])) * 100
+        else:
+            minimp += (significance * float(tbimpmin.get()) * (float(*capability[TRL]) - 0.1)) * 100
+            maximp += (significance * float(tbimpmax.get()) * float(*capability[TRL])) * 100
 
     label3.config(text=f"Потенциальный рост ВДС от {minimp:.1f}% до {maximp:.1f}%")
     adoption += 1
@@ -71,7 +81,7 @@ def on_click_show():
     global advancedmode
     if not advancedmode:
         advancedmode = True
-        root.geometry("1180x300")
+        root.geometry("1100x350")
 
         currenttask = combo.get()
         tbimpmin.insert(0, str(impact[currenttask]['min']))
@@ -85,20 +95,18 @@ def on_combo_change(event):
 
     currenttask = combo.get()
     if advancedmode:
-        combocapmin.current(2)
-        combocapmax.current(6)
         tbimpmin.insert(0, str(impact[currenttask]['min']))
         tbimpmax.insert(0, str(impact[currenttask]['max']))
 
 # ссылка на руководство пользователя
 def on_click_getmanual(event=None):
-    webbrowser.open("https://github.com/aghajanyan")
+    webbrowser.open("https://github.com/aghajanyan/ITMO-3/blob/main/ImpactCalc/%D0%A0%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE%20%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F.docx")
 
 
 # главное окно
 root = tk.Tk()
-root.title("Potential AI impact v4.0")
-root.geometry("600x300")
+root.title("Potential AI impact v5.0")
+root.geometry("600x350")
 root.resizable(False, False)
 
 # меню сверхну
@@ -122,10 +130,17 @@ additionalframe.pack(side="left", fill="both", expand=True, padx=40, pady=10)
 label1 = tk.Label(mainframe, text="Категория задачи", font=("Arial", 10))
 label1.pack()
 
-combo = ttk.Combobox(mainframe, values=["Оптимизация", "Прогнозирование", "Распознование", "Логистика", "Комбинаторный поиск"])
+combo = ttk.Combobox(mainframe, values=["Оптимизация", "Прогнозирование", "Распознование", "Логистика", "Комбинаторный поиск"], width=22)
 combo.current(0)
 combo.pack(pady=(0, 20))
 combo.bind("<<ComboboxSelected>>", on_combo_change)
+
+label4 = tk.Label(mainframe, text="Вероятность качественного внедрения AI/ML (уровень технологической готовности):", font=("Arial", 10))
+label4.pack()
+
+combocap = ttk.Combobox(mainframe, values=["УГТ-1", "УГТ-2", "УГТ-3", "УГТ-4", "УГТ-5", "УГТ-6", "УГТ-7", "УГТ-8", "УГТ-9"], width=10)
+combocap.current(5)
+combocap.pack(pady=(0, 20))
 
 label2 = tk.Label(mainframe, text="Экономическая значимость задачи для ВДС: 0 - отсутствует, 1 - крайне высокая:", font=("Arial", 10))
 label2.pack()
@@ -157,7 +172,7 @@ label3.pack(pady=25)
 # ОСНОВНЫЕ ЭЛЕМЕНТЫ (конец) ===
 
 # ДОПОЛНИТЕЛЬНЫЕ ЭЛЕМЕНТЫ (начало) ===
-
+"""
 label4 = tk.Label(additionalframe, text="Вероятность качественного внедрения AI/ML (уровень технологической готовности):", font=("Arial", 10))
 label4.pack()
 
@@ -183,9 +198,7 @@ combocapmax = ttk.Combobox(capsettings, values=["УГТ-1 (10%)", "УГТ-2 (20%
                                              "УГТ-6 (60%)", "УГТ-7 (70%)", "УГТ-8 (80%)", "УГТ-9 (90%)"], width=11)
 combocapmax.current(6)
 combocapmax.grid(row=0, column=3, sticky="w")
-
-#tbcapmax = tk.Entry(capsettings, width=10)
-#tbcapmax.grid(row=0, column=3, sticky="w")
+"""
 
 label7 = tk.Label(additionalframe, text="Потенциальное улучшение заданной задачи алгоритмом ML/AI:", font=("Arial", 10))
 label7.pack()
