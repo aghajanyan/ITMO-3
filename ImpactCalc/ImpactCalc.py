@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import webbrowser
 
 advancedmode = False    # переключение на расширенные настройки
 minimp = 0  # нижняя граница потенциальной выгоды
@@ -15,7 +16,7 @@ impact = {
     "Комбинаторный поиск": {'min': 0.05, 'max': 0.1}
 }
 
-# вероятность/сложность успешной реализации (пока вилка из 0.3 и 0.7)
+# вероятность успешной реализации (уровень технологической готовности: вилка УГТ-3 - УГТ-7)
 capability = {
     "Оптимизация": {'min': 0.3, 'max': 0.7},
     "Прогнозирование": {'min': 0.3, 'max': 0.7},
@@ -29,6 +30,12 @@ def on_click_reset():
     label3.config(text="")
     slider.set(0)
     combo.set("Оптимизация")
+    combocapmin.current(2)
+    combocapmax.current(6)
+    tbimpmin.delete(0, "end")
+    tbimpmax.delete(0, "end")
+    tbimpmin.insert(0, str(impact["Оптимизация"]['min']))
+    tbimpmax.insert(0, str(impact["Оптимизация"]['max']))
     global minimp
     global maximp
     global adoption
@@ -50,8 +57,10 @@ def on_click_calc():
         minimp += (significance * impact[task]['min'] * capability[task]['min']) * 100
         maximp += (significance * impact[task]['max'] * capability[task]['max']) * 100
     else:
-        minimp += (significance * float(tbimpmin.get()) * float(tbcapmin.get())) * 100
-        maximp += (significance * float(tbimpmax.get()) * float(tbcapmax.get())) * 100
+        capmin = (combocapmin.current() + 1) / 10
+        capmax = (combocapmax.current() + 1) / 10
+        minimp += (significance * float(tbimpmin.get()) * capmin) * 100
+        maximp += (significance * float(tbimpmax.get()) * capmax) * 100
 
     label3.config(text=f"Потенциальный рост ВДС от {minimp:.1f}% до {maximp:.1f}%")
     adoption += 1
@@ -62,32 +71,33 @@ def on_click_show():
     global advancedmode
     if not advancedmode:
         advancedmode = True
-        root.geometry("1100x300")
+        root.geometry("1180x300")
 
         currenttask = combo.get()
-        tbcapmin.insert(0, str(capability[currenttask]['min']))
-        tbcapmax.insert(0, str(capability[currenttask]['max']))
         tbimpmin.insert(0, str(impact[currenttask]['min']))
         tbimpmax.insert(0, str(impact[currenttask]['max']))
 
 # изменение класса задачи в комбобоксе
 def on_combo_change(event):
     if advancedmode:
-        tbcapmin.delete(0, "end")
-        tbcapmax.delete(0, "end")
         tbimpmin.delete(0, "end")
         tbimpmax.delete(0, "end")
 
     currenttask = combo.get()
     if advancedmode:
-        tbcapmin.insert(0, str(capability[currenttask]['min']))
-        tbcapmax.insert(0, str(capability[currenttask]['max']))
+        combocapmin.current(2)
+        combocapmax.current(6)
         tbimpmin.insert(0, str(impact[currenttask]['min']))
         tbimpmax.insert(0, str(impact[currenttask]['max']))
 
+# ссылка на руководство пользователя
+def on_click_getmanual(event=None):
+    webbrowser.open("https://github.com/aghajanyan")
+
+
 # главное окно
 root = tk.Tk()
-root.title("Potential AI impact v3.2")
+root.title("Potential AI impact v4.0")
 root.geometry("600x300")
 root.resizable(False, False)
 
@@ -96,6 +106,7 @@ mainmenu = tk.Menu(root)
 toolmenu = tk.Menu(mainmenu, tearoff=0)
 mainmenu.add_cascade(label="Дополнительно", menu=toolmenu)
 toolmenu.add_command(label="Расширенные настройки", command=on_click_show)
+toolmenu.add_command(label="Руководство пользователя", command=on_click_getmanual)
 mainmenu.add_command(label="Количество внедрений: 0")
 root.config(menu=mainmenu)
 
@@ -147,7 +158,7 @@ label3.pack(pady=25)
 
 # ДОПОЛНИТЕЛЬНЫЕ ЭЛЕМЕНТЫ (начало) ===
 
-label4 = tk.Label(additionalframe, text="Вероятность высококачественного внедрения ML/AI:", font=("Arial", 10))
+label4 = tk.Label(additionalframe, text="Вероятность качественного внедрения AI/ML (уровень технологической готовности):", font=("Arial", 10))
 label4.pack()
 
 # сетка для элементов capability (вероятность качественного внедрения)
@@ -157,14 +168,24 @@ capsettings.pack(pady=10, padx=10)
 label5 = tk.Label(capsettings, text="От:", font=("Arial", 10))
 label5.grid(row=0, column=0, padx=(0, 5), sticky="e")
 
-tbcapmin = tk.Entry(capsettings, width=10)
-tbcapmin.grid(row=0, column=1, padx=(0, 15), sticky="w")
+combocapmin = ttk.Combobox(capsettings, values=["УГТ-1 (10%)", "УГТ-2 (20%)", "УГТ-3 (30%)", "УГТ-4 (40%)", "УГТ-5 (50%)",
+                                             "УГТ-6 (60%)", "УГТ-7 (70%)", "УГТ-8 (80%)", "УГТ-9 (90%)"], width=11)
+combocapmin.current(2)
+combocapmin.grid(row=0, column=1, padx=(0, 5), sticky="w")
+
+#tbcapmin = tk.Entry(capsettings, width=10)
+#tbcapmin.grid(row=0, column=1, padx=(0, 15), sticky="w")
 
 label6 = tk.Label(capsettings, text="До:", font=("Arial", 10))
 label6.grid(row=0, column=2, padx=(0, 5), sticky="e")
 
-tbcapmax = tk.Entry(capsettings, width=10)
-tbcapmax.grid(row=0, column=3, sticky="w")
+combocapmax = ttk.Combobox(capsettings, values=["УГТ-1 (10%)", "УГТ-2 (20%)", "УГТ-3 (30%)", "УГТ-4 (40%)", "УГТ-5 (50%)",
+                                             "УГТ-6 (60%)", "УГТ-7 (70%)", "УГТ-8 (80%)", "УГТ-9 (90%)"], width=11)
+combocapmax.current(6)
+combocapmax.grid(row=0, column=3, sticky="w")
+
+#tbcapmax = tk.Entry(capsettings, width=10)
+#tbcapmax.grid(row=0, column=3, sticky="w")
 
 label7 = tk.Label(additionalframe, text="Потенциальное улучшение заданной задачи алгоритмом ML/AI:", font=("Arial", 10))
 label7.pack()
