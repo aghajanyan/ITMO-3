@@ -1,17 +1,20 @@
 import tkinter as tk
 from tkinter import ttk
 import webbrowser
+import matplotlib.pyplot as plt
+import numpy as np
+from tkinter import messagebox
 
 advancedmode = False    # переключение на расширенные настройки
 minimp = 0  # нижняя граница потенциальной выгоды
 maximp = 0  # верхняя граница потенциальной выгоды
-adoption = 0
+adoption = 0    # счётчик внедрений
 
 # усредненные выгоды от использования МЛ/ИИ в сравнении с классическими подходами
 impact = {
     "Оптимизация": {'min': 0.1, 'max': 0.3},
     "Прогнозирование": {'min': 0.1, 'max': 0.3},
-    "Распознование": {'min': 0.5, 'max': 0.9},
+    "Распознавание": {'min': 0.5, 'max': 0.9},
     "Логистика": {'min': 0.05, 'max': 0.15},
     "Комбинаторный поиск": {'min': 0.05, 'max': 0.1}
 }
@@ -76,6 +79,7 @@ def on_click_calc():
     adoption += 1
     mainmenu.entryconfigure(2, label="Количество внедрений: " + str(adoption))
 
+
 # переключение на расширенные настройки
 def on_click_show():
     global advancedmode
@@ -98,6 +102,41 @@ def on_combo_change(event):
         tbimpmin.insert(0, str(impact[currenttask]['min']))
         tbimpmax.insert(0, str(impact[currenttask]['max']))
 
+# График роста ВДС в зависимости от УГТ
+def on_click_getgraph():
+    global adoption
+
+    if adoption == 0:
+        messagebox.showerror("Ошибка", "Сначала вычислите потенциальный вклад.")
+    elif adoption > 1:
+        messagebox.showerror("Ошибка", "На данный момент динамика рассчитывается только для 1 внедрения.")
+    elif adoption == 1:
+        significance = slider.get()
+        task = combo.get()
+
+        maxlist = []
+        minlist = []
+        for i in range(combocap.current(), 9):
+            maxlist.append((significance * impact[task]['max'] * float(*capability["УГТ-"+ str(i+1)])) * 100)
+            minlist.append((significance * impact[task]['min'] * (float(*capability["УГТ-"+ str(i+1)]) - 0.1)) * 100)
+
+        TRLnum = np.arange(combocap.current()+1, 10)
+        plt.plot(TRLnum, maxlist, ls=':', marker='^', color='red', label='Верхняя граница')
+        plt.plot(TRLnum, minlist, ls=':', marker='v', color='green', label='Нижняя граница')
+
+        for i, txt in enumerate(maxlist):
+            plt.text(TRLnum[i], maxlist[i] + 0.3, f"{txt:.1f}%", fontsize=10, ha='center')
+
+        for i, txt in enumerate(minlist):
+            plt.text(TRLnum[i], minlist[i] + 0.3, f"{txt:.1f}%", fontsize=10, ha='center')
+
+        plt.title("Динамика роста ВДС в зависимости от УГТ")
+        plt.xlabel('Уровень технологической готовности')
+        plt.ylabel('Приблизительный рост ВДС %')
+        plt.legend()
+        plt.grid()
+        plt.show()
+
 # ссылка на руководство пользователя
 def on_click_getmanual(event=None):
     webbrowser.open("https://github.com/aghajanyan/ITMO-3/blob/main/ImpactCalc/%D0%A0%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE%20%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F.docx")
@@ -105,7 +144,7 @@ def on_click_getmanual(event=None):
 
 # главное окно
 root = tk.Tk()
-root.title("Potential AI impact v5.0")
+root.title("Potential AI impact v6.0")
 root.geometry("600x350")
 root.resizable(False, False)
 
@@ -114,6 +153,7 @@ mainmenu = tk.Menu(root)
 toolmenu = tk.Menu(mainmenu, tearoff=0)
 mainmenu.add_cascade(label="Дополнительно", menu=toolmenu)
 toolmenu.add_command(label="Расширенные настройки", command=on_click_show)
+toolmenu.add_command(label="Динамика роста ВДС", command=on_click_getgraph)
 toolmenu.add_command(label="Руководство пользователя", command=on_click_getmanual)
 mainmenu.add_command(label="Количество внедрений: 0")
 root.config(menu=mainmenu)
