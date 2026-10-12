@@ -174,6 +174,24 @@ def separatesector(rawdata, features):
 
     sepsector.to_excel('construction sector (factoriescap_s) 0.xlsx', index=False)
 
+def toexcelforanalysis():
+    rawdata = pd.read_csv("../data/kz/BDusage_r.kz.csv")
+    tmp = pd.read_csv("../data/kz/ITusage_r.kz.csv")
+
+    rawdata = rawdata.merge(tmp, on=['region', 'year'], how='left')
+
+    rawdata['BDusage_r'] = rawdata['BDusage_r'] / rawdata['ITusage_r']
+
+    rawdata = rawdata[rawdata.columns.drop('ITusage_r')]
+
+    rawdata = rawdata.pivot(index='region', columns='year', values='BDusage_r')
+
+    rawdata.to_excel("BDusage analysis.xlsx")
+
+
+# для сравнительного анализа
+toexcelforanalysis()
+
 features = ['VDS_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s', 'RDcosts_s']
 
 
@@ -186,6 +204,8 @@ allrubfeatures_r = ['VDS_r', 'AIcosts_r' 'ITcosts_r', 'skvozcosts_r', 'trainingc
 
 
 datasetname = 'agro-sector'
+
+
 
 # получение и сортировка данных
 #rawdata = pd.read_csv("../data/VDS_r.csv", dtype={'okato': str})
