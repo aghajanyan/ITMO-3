@@ -26,7 +26,7 @@ def normbymax(rawdata, cols, datasetname):
 
 # умножить рублевые признаки на соответствующую долю инфляции
 def normbyinf(trainset, rubfeatures):
-    inflation = pd.read_csv("inflation16-24.csv")
+    inflation = pd.read_csv("inflation16-25.kz.csv")
     trainset = trainset.merge(inflation, on='year', how='left')
     inf = trainset[['inf']]
     for k in range(len(rubfeatures)):
@@ -175,18 +175,23 @@ def separatesector(rawdata, features):
     sepsector.to_excel('construction sector (factoriescap_s) 0.xlsx', index=False)
 
 def toexcelforanalysis():
-    rawdata = pd.read_csv("../data/kz/BDusage_r.kz.csv")
-    tmp = pd.read_csv("../data/kz/ITusage_r.kz.csv")
+    rawdata = pd.read_csv("../data/kz/RDcosts_r.kz.csv")
+    #tmp = pd.read_csv("../data/kz/ITusage_r.kz.csv")
 
-    rawdata = rawdata.merge(tmp, on=['region', 'year'], how='left')
+    #rawdata = rawdata[rawdata.columns.drop('okato')]
+    #tmp = tmp[tmp.columns.drop('okato')]
+    #rawdata = rawdata.merge(tmp, on=['region', 'year'], how='left')
 
-    rawdata['BDusage_r'] = rawdata['BDusage_r'] / rawdata['ITusage_r']
+    rawdata = rawdata[rawdata['year'] > 2015]
+    rawdata = normbyinf(rawdata, ['RDcosts_r'])
 
-    rawdata = rawdata[rawdata.columns.drop('ITusage_r')]
+    #rawdata['AIusage_r'] = rawdata['AIusage_r'] / rawdata['ITusage_r']
 
-    rawdata = rawdata.pivot(index='region', columns='year', values='BDusage_r')
+    #rawdata = rawdata[rawdata.columns.drop('ITusage_r')]
 
-    rawdata.to_excel("BDusage analysis.xlsx")
+    rawdata = rawdata.pivot(index='region', columns='year', values='RDcosts_r')
+
+    rawdata.to_excel("RDcosts analysis.xlsx")
 
 
 # для сравнительного анализа
