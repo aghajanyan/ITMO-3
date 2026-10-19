@@ -10,11 +10,11 @@ import seaborn as sns
 import copy
 
 k = 4 # кол-во кластеров
-datasetname = 'factoriescap_s (costs) 0 prop visnorm' # название датасета
+datasetname = 'VDS_r (usage_r) 1 prop IQR' # название датасета
 
 # медианное значение ключевого параметра в кластере
 def getmedian(data2):
-    sns.boxplot(x='clust', y='factoriescap_s', data=data2, palette='viridis')
+    sns.boxplot(x='clust', y='VDS_r', data=data2, palette='viridis')
 
     plt.title("Медианное значение объема собственного производства в кластере")
     plt.xlabel('Cluster')
@@ -95,13 +95,13 @@ def saveallclustersinonesheet(data):
         data[col] = data[col] * norm.iloc[0][col]
 
     data = data.drop(columns=['x', 'y'])
-    data = data.sort_values(by=['okved2', 'year'])
+    data = data.sort_values(by=['okato', 'year'])
     data = data.sort_values(by=['clust'])
     data.to_excel(writer, index=False)
 
     writer.close()
 
-data = pd.read_csv('../datasets/'+ datasetname +'.csv')
+data = pd.read_csv('../datasets/'+ datasetname +'.csv', dtype={'okato': str})
 data = data.sample(frac=1)  # перетасовка
 
 # модель кластеризации
@@ -121,7 +121,7 @@ data['y'] = pca2[:, 1]
 # разметка данных согласно кластеру
 data['clust'] = clust_model.labels_
 
-data.to_csv('classification prop 6.csv', index=False)
+#data.to_csv('classification prop 6.csv', index=False)
 
 # разделяем кластеры по независимым массивам (массив массивов)
 clusts = []
@@ -132,13 +132,13 @@ for i in range(k):
 getmedian(data.copy())
 
 # сохранить медианы кластеров в эксель
-saveallmedians(copy.deepcopy(clusts))
+#saveallmedians(copy.deepcopy(clusts))
 
 # сохраниить полные данные кластеров в эксель
-saveallclustersinonesheet(data.copy())
+#saveallclustersinonesheet(data.copy())
 
 # сохранить субкластеры
-savesubcluster(copy.deepcopy(clusts))
+#savesubcluster(copy.deepcopy(clusts))
 
 # визуализация кластеризации
 for i in range(k):

@@ -26,7 +26,7 @@ def normbymax(rawdata, cols, datasetname):
 
 # умножить рублевые признаки на соответствующую долю инфляции
 def normbyinf(trainset, rubfeatures):
-    inflation = pd.read_csv("inflation16-25.ru.csv")
+    inflation = pd.read_csv("inflation21-25.kz.csv")
     trainset = trainset.merge(inflation, on='year', how='left')
     inf = trainset[['inf']]
     for k in range(len(rubfeatures)):
@@ -175,12 +175,12 @@ def separatesector(rawdata, features):
     sepsector.to_excel('construction sector (factoriescap_s) 0.xlsx', index=False)
 
 def toexcelforanalysis():
-    rawdata = pd.read_csv("../data/VDS_r.csv")
-    #tmp = pd.read_csv("../data/kz/ITusage_r.kz.csv")
+    rawdata = pd.read_csv("../data/kz/VDS_s.kz.csv")
+    #tmp = pd.read_csv("../data/kz/ITcosts_r.kz.csv")
 
-    rawdata = rawdata[rawdata.columns.drop('okato')]
+    #rawdata = rawdata[rawdata.columns.drop('okato')]
     #tmp = tmp[tmp.columns.drop('okato')]
-    #rawdata = rawdata.merge(tmp, on=['region', 'year'], how='left')
+    rawdata = rawdata.merge(tmp, on=['region', 'year'], how='left')
 
     #rawdata = rawdata[rawdata['year'] > 2015]
     rawdata = normbyinf(rawdata, ['VDS_r'])
@@ -195,9 +195,9 @@ def toexcelforanalysis():
 
 
 # для сравнительного анализа
-toexcelforanalysis()
+#toexcelforanalysis()
 
-features = ['VDS_s', 'ITcosts_s', 'skvozcosts_s', 'trainingcosts_s', 'RDcosts_s']
+features = ['VDS_s', 'ITusage_s', 'BDusage_s', 'ITcosts_s']
 
 
 # признаки для ценового нормирования
@@ -211,36 +211,37 @@ allrubfeatures_r = ['VDS_r', 'AIcosts_r' 'ITcosts_r', 'skvozcosts_r', 'trainingc
 datasetname = 'agro-sector'
 
 
-
 # получение и сортировка данных
 #rawdata = pd.read_csv("../data/VDS_r.csv", dtype={'okato': str})
-rawdata = pd.read_csv("../data/VDS_s.csv")
-rawdata = rawdata.sort_values(by=['okved2', 'year'])
+rawdata = pd.read_csv("../data/kz/VDS_s.kz.csv")
+#rawdata = rawdata[rawdata.columns.drop('okato')]
+rawdata = rawdata.sort_values(by=['sector', 'year'])
 
 tempset = []
 for k in range(1, len(features)):
     #tempset = pd.read_csv('../data/'+features[k]+'.csv', dtype={'okato': str})
-    tempset = pd.read_csv('../data/' + features[k] + '.csv')
-    tempset = tempset[tempset.columns.drop('sector')]
-    rawdata = rawdata.merge(tempset, on=['okved2', 'year'], how='left')
+    tempset = pd.read_csv('../data/kz/' + features[k] + '.kz.csv')
+
+    #tempset = tempset[tempset.columns.drop('okato')]
+    rawdata = rawdata.merge(tempset, on=['sector', 'year'], how='left')
 
 rawdata = rawdata.dropna()
 
-minyear = rawdata['year'].min()
+#minyear = rawdata['year'].min()
 # Анализ регионов (подготовка данных под паттерн-анализ)
-sectoranalysis(rawdata, features)
+#sectoranalysis(rawdata, features)
 
 # Выделить отдельный сектор в эксель файл для анализа
 #separatesector(rawdata, features)
 
 minyear = rawdata['year'].min()
-rawdata = normbyinf(rawdata, ['factoriescap_s'])
+rawdata = normbyinf(rawdata, ['VDS_s', 'ITcosts_s'])
 
 #visanalysis(rawdata)
-rawdata['AIusage_r'] = rawdata['AIusage_r'] / rawdata['ITusage_r']
-rawdata['BDusage_r'] = rawdata['BDusage_r'] / rawdata['ITusage_r']
-rawdata = rawdata[rawdata.columns.drop('ITusage_r')]
-features.remove('ITusage_r')
+#rawdata['AIusage_r'] = rawdata['AIusage_r'] / rawdata['ITusage_r']
+rawdata['BDusage_s'] = rawdata['BDusage_s'] / rawdata['ITusage_s']
+#rawdata = rawdata[rawdata.columns.drop('ITusage_r')]
+#features.remove('ITusage_r')
 
 """
 rawdata['skvozcosts_r'] = rawdata['skvozcosts_r'] / rawdata['ITcosts_r']
@@ -252,13 +253,25 @@ rawdata['RDequip_r'] = rawdata['RDequip_r'] / rawdata['RDcosts_r']
 rawdata['RDcosts_r'] = rawdata['RDcosts_r'] / rawdata['VDS_r']
 """
 
-rawdata = remove_outliers(rawdata)
+#rawdata = remove_outliers(rawdata)
 
-rawdata = normbymax(rawdata, features, datasetname)
+#rawdata = normbymax(rawdata, features, datasetname)
 
-#features = ['sector', 'okved2', 'year', 'VDS_r', 'ITcosts_r', 'skvozcosts_r', 'trainingcosts_r']
+features = ['sector', 'year', 'VDS_s', 'ITusage_s', 'BDusage_s', 'ITcosts_s']
 
-#rawdata = pd.DataFrame(rawdata, columns=features)
-rawdata.to_csv(''+ datasetname +'.csv', index=False)
+rawdata = pd.DataFrame(rawdata, columns=features)
+
+rawdata.to_excel('KZ sectors.xlsx', index=False)
+
+#rawdata = rawdata[rawdata.columns.drop('region')]
+#rawdata = rawdata[rawdata.columns.drop('year')]
+
+#Корреляционная матрица Пирсона
+cor = rawdata.corr()
+sns.heatmap(cor, annot=True, cmap=plt.cm.Reds)
+plt.title("Корреляционная матрица для Казахстана (по регионам)")
+plt.show()
+
+#rawdata.to_csv(''+ datasetname +'.csv', index=False)
 
 print('done')

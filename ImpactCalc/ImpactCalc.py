@@ -103,7 +103,7 @@ def on_combo_change(event):
         tbimpmax.insert(0, str(impact[currenttask]['max']))
 
 # График роста ВДС в зависимости от УГТ
-def on_click_getgraph():
+def on_click_showgraph():
     global adoption
 
     if adoption == 0:
@@ -153,7 +153,7 @@ mainmenu = tk.Menu(root)
 toolmenu = tk.Menu(mainmenu, tearoff=0)
 mainmenu.add_cascade(label="Дополнительно", menu=toolmenu)
 toolmenu.add_command(label="Расширенные настройки", command=on_click_show)
-toolmenu.add_command(label="Динамика роста ВДС", command=on_click_getgraph)
+toolmenu.add_command(label="Динамика роста ВДС", command=on_click_showgraph)
 toolmenu.add_command(label="Руководство пользователя", command=on_click_getmanual)
 mainmenu.add_command(label="Количество внедрений: 0")
 root.config(menu=mainmenu)
